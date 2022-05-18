@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 namespace mj.gist {
-    public class RenderTextureUtil {
+    public class RTUtil {
         public static RenderTexture CreateRenderTexture(
             int width,
             int height,
@@ -62,5 +63,38 @@ namespace mj.gist {
             else
                 return false;
         }
+
+        public static RenderTexture NewFloat(int w, int h)
+          => new RenderTexture(w, h, 0, RenderTextureFormat.RFloat);
+
+        public static RenderTexture NewFloat4(int w, int h)
+          => new RenderTexture(w, h, 0, RenderTextureFormat.ARGBFloat);
+
+        public static RenderTexture NewUAV(int w, int h, int d = 0, RenderTextureFormat format = RenderTextureFormat.ARGBFloat, GraphicsFormat graphicsFormat = GraphicsFormat.R32G32B32A32_SFloat) {
+            var rt = new RenderTexture(w, h, d, format);
+            rt.graphicsFormat = graphicsFormat;
+            rt.enableRandomWrite = true;
+            rt.Create();
+            return rt;
+        }
+
+        public static RenderTexture NewArgbUav(int w, int h) {
+            var rt = new RenderTexture
+              (w, h, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            rt.enableRandomWrite = true;
+            rt.Create();
+            return rt;
+        }
+
+        public static RenderTextureFormat SingleChannelRTFormat => SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.R8)
+                                                                   ? RenderTextureFormat.R8 : RenderTextureFormat.Default;
+        public static RenderTextureFormat SingleChannelHalfRTFormat => SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RHalf)
+                                                                    ? RenderTextureFormat.RHalf : RenderTextureFormat.ARGBHalf;
+
+        public static RenderTexture NewSingleChannelRT(int width, int height)
+          => new RenderTexture(width, height, 0, SingleChannelRTFormat);
+
+        public static RenderTexture NewSingleChannelHalfRT(int width, int height)
+          => new RenderTexture(width, height, 0, SingleChannelHalfRTFormat);
     }
 }
