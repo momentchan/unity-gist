@@ -3,10 +3,12 @@ using UnityEngine;
 namespace mj.gist {
     public class MaskGenerator : MonoBehaviour {
         [SerializeField] private MaskType maskType;
+        [SerializeField] private Vector2 direction = Vector2.one;
         [SerializeField] private Shader maskShader;
         [SerializeField] private RenderTexture mask;
         [SerializeField] private PingPongRenderTexture rt;
         [SerializeField] private float radius = 0.01f;
+        [SerializeField] private float strength = 1;
         [SerializeField] private float fadeFactor = 0.01f;
         [SerializeField] private float smoothness = 0.01f;
 
@@ -24,8 +26,10 @@ namespace mj.gist {
             maskMat.SetFloat("_Radius", radius);
             maskMat.SetFloat("_Smoothness", smoothness);
             maskMat.SetFloat("_FadeFactor", fadeFactor);
+            maskMat.SetFloat("_Strength", strength);
 
             maskMat.SetFloat("_Aspect", Camera.main.aspect);
+            maskMat.SetVector("_Direction", direction);
             maskMat.SetVector("_Position", mousePose);
 
             Graphics.Blit(Texture2D.blackTexture, rt.Write, maskMat, (int)maskType);

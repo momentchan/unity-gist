@@ -17,12 +17,13 @@ Shader "Unlit/MaskGenerator"
         float _FadeFactor;
 
         float _Aspect;
+        float _Strength;
         float2 _Position;
-
+        float2 _Direction;
 
         float4 ComputeMaskValue(float2 uv) {
             float4 col = 0;
-            float2 dis = (_Position - uv) * float2(_Aspect, 1);
+            float2 dis = (_Position - uv) * float2(_Aspect, 1) * _Direction;
             float len = length(dis);
             col.rgb += smoothstep(_Radius, _Radius * _Smoothness, len) * 0.5;
             return col;
@@ -36,7 +37,7 @@ Shader "Unlit/MaskGenerator"
 
         float4 accumulation(v2f_img i) : SV_Target{
             float4 col = tex2D(_MaskTex, i.uv);
-            col += ComputeMaskValue(i.uv);
+            col += _Strength * ComputeMaskValue(i.uv);
             col -= _FadeFactor;
             return saturate(col);
         }
