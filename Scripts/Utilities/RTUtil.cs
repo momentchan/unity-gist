@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 
 namespace mj.gist {
@@ -11,7 +9,7 @@ namespace mj.gist {
             int depth,
             RenderTextureFormat format,
             bool enableRandomWrite = true,
-            bool useMipMap = false, 
+            bool useMipMap = false,
             bool autoGenerateMips = false,
             TextureWrapMode wrapMode = TextureWrapMode.Clamp,
             FilterMode filterMode = FilterMode.Bilinear
@@ -96,5 +94,11 @@ namespace mj.gist {
 
         public static RenderTexture NewSingleChannelHalfRT(int width, int height)
           => new RenderTexture(width, height, 0, SingleChannelHalfRTFormat);
+        public static void Destroy(RenderTexture tgt) {
+            if (tgt != null) {
+                Object.Destroy(tgt);
+                tgt = null;
+            }
+        }
     }
 }
