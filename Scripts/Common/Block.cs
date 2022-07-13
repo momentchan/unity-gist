@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-namespace nobnak.Gist.Wrapper {
+namespace mj.gist {
     public interface IBlock<T> {
         T Apply();
         T Clear();

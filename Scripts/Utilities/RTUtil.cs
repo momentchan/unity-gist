@@ -94,6 +94,14 @@ namespace mj.gist {
 
         public static RenderTexture NewSingleChannelHalfRT(int width, int height)
           => new RenderTexture(width, height, 0, SingleChannelHalfRTFormat);
+
+        public static void Clear(RenderTexture tgt) {
+            var tmp = RenderTexture.active;
+            RenderTexture.active = tgt;
+            GL.Clear(false, true, Color.clear);
+            RenderTexture.active = tmp;
+        }
+
         public static void Destroy(RenderTexture tgt) {
             if (tgt != null) {
                 Object.Destroy(tgt);
