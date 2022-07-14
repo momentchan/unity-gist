@@ -3,7 +3,7 @@ using UnityEngine.Experimental.Rendering;
 
 namespace mj.gist {
     public class RTUtil {
-        public static RenderTexture CreateRenderTexture(
+        public static RenderTexture Create(
             int width,
             int height,
             int depth,
@@ -102,7 +102,7 @@ namespace mj.gist {
             RenderTexture.active = tmp;
         }
 
-        public static void Destroy(RenderTexture tgt) {
+        public static void Destroy(Texture tgt) {
             if (tgt != null) {
                 Object.Destroy(tgt);
                 tgt = null;
