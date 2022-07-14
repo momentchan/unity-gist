@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace mj.gist {
+namespace mj.gist.postprocessing {
     [RequireComponent(typeof(Camera))]
     public class ImageEffectBase : MonoBehaviour {
 
