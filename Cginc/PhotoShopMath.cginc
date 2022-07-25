@@ -33,6 +33,11 @@ float4 Desaturate(float3 color, float Desaturation)
     return float4(lerp(color, gray, Desaturation), 1.0);
 }
 
+//  luminance
+float Luma(float3 rgb) {
+    return saturate(dot(rgb, float3(0.2126729, 0.7151522, 0.0721750)));
+}
+
 /*
 **HSV
 */
