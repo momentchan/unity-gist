@@ -64,6 +64,26 @@ float4x4 rotateMtx(float angle, float axis)
     return m;
 }
 
+float2 rotateRadians(float2 UV, float2 Center, float Rotation)
+{
+    UV -= Center;
+    float s = sin(Rotation);
+    float c = cos(Rotation);
+    float2x2 rMatrix = float2x2(c, -s, s, c);
+    rMatrix *= 0.5;
+    rMatrix += 0.5;
+    rMatrix = rMatrix * 2 - 1;
+    UV.xy = mul(UV.xy, rMatrix);
+    UV += Center;
+    return UV;
+}
+
+float2 rotateDegrees(float2 UV, float2 Center, float Rotation)
+{
+    Rotation = Rotation * (3.1415926f / 180.0f);
+    return rotateRadians(UV, Center, Rotation);
+}
+
 float2 rotate2D(float2 v, float theta)
 {
     return float2(v.x * cos(theta) - v.y * sin(theta), v.x * sin(theta) + v.y * cos(theta));

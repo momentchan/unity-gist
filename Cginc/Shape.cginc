@@ -22,4 +22,17 @@ float drawLineHard(float2 p, float2 a, float2 b, float width) {
 	}
 	return 0;
 }
+
+float drawPolygon(float2 UV, float Sides, float Width, float Height)
+{
+	float pi = 3.14159265359;
+	float aWidth = Width * cos(pi / Sides);
+	float aHeight = Height * cos(pi / Sides);
+	float2 uv = (UV * 2 - 1) / float2(aWidth, aHeight);
+	uv.y *= -1;
+	float pCoord = atan2(uv.x, uv.y);
+	float r = 2 * pi / Sides;
+	float distance = cos(floor(0.5 + pCoord / r) * r - pCoord) * length(uv);
+	return saturate((1 - distance) / fwidth(distance));
+}
 #endif
