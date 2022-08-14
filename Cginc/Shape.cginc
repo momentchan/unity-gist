@@ -35,4 +35,9 @@ float drawPolygon(float2 UV, float Sides, float Width, float Height)
 	float distance = cos(floor(0.5 + pCoord / r) * r - pCoord) * length(uv);
 	return saturate((1 - distance) / fwidth(distance));
 }
+
+// y = Ax + B
+float drawLineEq(float2 UV, float A, float B, float Smoothness) {
+	return smoothstep(Smoothness, 0, abs(UV.x * A + B - UV.y));
+}
 #endif
