@@ -23,6 +23,11 @@ float drawLineHard(float2 p, float2 a, float2 b, float width) {
 	return 0;
 }
 
+// y = Ax + B
+float drawLineEq(float2 UV, float A, float B, float Smoothness) {
+	return smoothstep(Smoothness, 0, abs(UV.x * A + B - UV.y));
+}
+
 float drawPolygon(float2 UV, float Sides, float Width, float Height)
 {
 	float pi = 3.14159265359;
@@ -36,8 +41,23 @@ float drawPolygon(float2 UV, float Sides, float Width, float Height)
 	return saturate((1 - distance) / fwidth(distance));
 }
 
-// y = Ax + B
-float drawLineEq(float2 UV, float A, float B, float Smoothness) {
-	return smoothstep(Smoothness, 0, abs(UV.x * A + B - UV.y));
+float drawRectangleFill(float2 UV, float Width, float Height)
+{
+	float2 d = abs(UV * 2 - 1) - float2(Width, Height);
+	d = 1 - d / fwidth(d);
+	return saturate(min(d.x, d.y));
 }
+
+float drawRectangleBorder(float2 UV, float Width, float Height, float Border)
+{
+	return drawRectangleFill(UV, Width, Height) - drawRectangleFill(UV, Width - Border, Height - Border);
+}
+
+float drawEllipse(float2 UV, float2 Center, float Width, float Height)
+{
+	UV -= (Center - 0.5);
+	float d = length((UV * 2 - 1) / float2(Width, Height));
+	return saturate((1 - d) / fwidth(d));
+}
+
 #endif
