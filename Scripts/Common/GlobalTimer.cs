@@ -5,6 +5,7 @@ namespace mj.gist
 {
     public class GlobalTimer : MonoBehaviour
     {
+        [SerializeField] private int targetFrameRate = 30;
         [SerializeField] private int debugFontSize = 30;
         [SerializeField] private bool debug = true;
 
@@ -13,6 +14,7 @@ namespace mj.gist
 
         void Start()
         {
+            Application.targetFrameRate = targetFrameRate;
             StartCoroutine(FpsCounter());
         }
 
@@ -23,6 +25,8 @@ namespace mj.gist
 
         private void OnGUI()
         {
+            if (!debug) return;
+
             GUI.skin.label.fontSize = debugFontSize;
             GUILayout.Label($"Time: {time}");
             GUILayout.Label($"Fps:  {fps}");

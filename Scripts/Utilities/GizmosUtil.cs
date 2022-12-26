@@ -14,5 +14,14 @@ namespace mj.gist {
             Gizmos.DrawLine(p2, p3);
             Gizmos.DrawLine(p3, p0);
         }
+        public static void DrawCross(Vector3 p, float length)
+        {
+            var p0 = p + Vector3.up * length * 0.5f;
+            var p1 = p - Vector3.up * length * 0.5f;
+            var p2 = p + Vector3.right * length * 0.5f;
+            var p3 = p - Vector3.right * length * 0.5f;
+            Gizmos.DrawLine(p0, p1);
+            Gizmos.DrawLine(p2, p3);
+        }
     }
 }

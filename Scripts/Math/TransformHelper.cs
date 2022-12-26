@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace mj.gist
 {
-    public static class Transform
+    public static class TransformHelper
     {
         /// <summary>
         /// Compute matrix to convert coordinates from p0~p3 to (0,0), (0,1), (1,1), (1,0)
