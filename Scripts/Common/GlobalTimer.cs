@@ -7,7 +7,9 @@ namespace mj.gist
     {
         [SerializeField] private int targetFrameRate = 30;
         [SerializeField] private int debugFontSize = 30;
-        [SerializeField] private bool debug = true;
+        [SerializeField] private KeyCode showKey = KeyCode.E;
+        
+        private bool show = true;
 
         private float time;
         private int fps;
@@ -20,12 +22,15 @@ namespace mj.gist
 
         void Update()
         {
+            if (Input.GetKeyDown(showKey))
+                show = !show;
+
             time = Time.realtimeSinceStartup;
         }
 
         private void OnGUI()
         {
-            if (!debug) return;
+            if (!show) return;
 
             GUI.skin.label.fontSize = debugFontSize;
             GUILayout.Label($"Time: {time}");
