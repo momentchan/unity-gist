@@ -1,9 +1,12 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
+
 using UnityEditor.ShortcutManagement;
+
 using UnityEngine;
 
 namespace mj.gist
@@ -120,3 +123,4 @@ namespace mj.gist
         }
     }
 }
+#endif
