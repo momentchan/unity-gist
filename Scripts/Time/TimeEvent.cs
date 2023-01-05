@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace mj.gist
@@ -12,11 +10,11 @@ namespace mj.gist
         public Action<int> OnMinuteChanged;
         public Action<int> OnHourChanged;
 
-        private Time time;
+        private TimeData time;
 
         private void Start()
         {
-            time = new Time(Now);
+            time = new TimeData(Now);
 
             //OnSecondChanged += (second) => { Debug.Log($"Second: {second}"); };
             //OnMinuteChanged += (minute) => { Debug.Log($"Minute: {minute}"); };
@@ -43,19 +41,48 @@ namespace mj.gist
                 OnHourChanged?.Invoke(time.Hour);
             }
         }
+    }
 
+    [Serializable]
+    public class TimeData
+    {
+        [SerializeField] private int hour;
+        [SerializeField] private int minute;
+        [SerializeField] private int second;
 
-        public class Time
+        public int Hour { get { return hour; } set { hour = value; } }
+        public int Minute { get { return minute; } set { minute = value; } }
+        public int Second { get { return second; } set { second = value; } }
+
+        public TimeData(DateTime time)
         {
-            public int Second { get; set; }
-            public int Minute { get; set; }
-            public int Hour { get; set; }
-            public Time(DateTime time)
-            {
-                Second = time.Second;
-                Minute = time.Minute;
-                Hour = time.Hour;
-            }
+            second = time.Second;
+            minute = time.Minute;
+            hour = time.Hour;
+        }
+    }
+
+    public class OneTimeEvent
+    {
+        public DateTime Time { get; private set; }
+        private Action action;
+        private string name;
+        private bool triggered = false;
+
+        public bool Triggered => triggered;
+        public bool Active => Time < DateTime.Now;
+
+        public OneTimeEvent(string name, TimeData time, Action action)
+        {
+            this.name = name;
+            this.Time = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, time.Hour, time.Minute, time.Second);
+            this.action = action;
+        }
+        public void Trigger()
+        {
+            action?.Invoke();
+            Debug.Log($"{name} is triggered at {DateTime.Now.ToString("MMMM dd HH:mm")}");
+            triggered = true;
         }
     }
 }
