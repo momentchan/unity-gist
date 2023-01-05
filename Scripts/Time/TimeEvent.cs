@@ -1,15 +1,18 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace mj.gist
 {
     public class TimeEvent : MonoBehaviour
     {
+        [SerializeField] private List<OneTimeEvent> eventData;
+
         public DateTime Now => DateTime.Now;
         public Action<int> OnSecondChanged;
         public Action<int> OnMinuteChanged;
         public Action<int> OnHourChanged;
-
         private TimeData time;
 
         private void Start()
@@ -40,6 +43,12 @@ namespace mj.gist
                 time.Hour = Now.Hour;
                 OnHourChanged?.Invoke(time.Hour);
             }
+
+            foreach (var e in eventData)
+            {
+                if (!e.Triggered && e.Active)
+                    e.Trigger();
+            }
         }
     }
 
@@ -62,22 +71,19 @@ namespace mj.gist
         }
     }
 
+    [Serializable]
     public class OneTimeEvent
     {
-        public DateTime Time { get; private set; }
-        private Action action;
-        private string name;
-        private bool triggered = false;
+        [SerializeField] private string name = "Event";
+        [SerializeField] private TimeData time;
+        [SerializeField] private bool triggered = false;
+
+        public DateTime Time => new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, time.Hour, time.Minute, time.Second);
+        private UnityEvent action;
 
         public bool Triggered => triggered;
         public bool Active => Time < DateTime.Now;
 
-        public OneTimeEvent(string name, TimeData time, Action action)
-        {
-            this.name = name;
-            this.Time = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, time.Hour, time.Minute, time.Second);
-            this.action = action;
-        }
         public void Trigger()
         {
             action?.Invoke();
