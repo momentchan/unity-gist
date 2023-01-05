@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Timers;
 using UnityEngine;
 
 namespace mj.gist
@@ -8,10 +10,9 @@ namespace mj.gist
         [SerializeField] private int targetFrameRate = 30;
         [SerializeField] private int debugFontSize = 30;
         [SerializeField] private KeyCode showKey = KeyCode.E;
-        
-        private bool show = true;
 
-        private float time;
+        private bool show = true;
+        private float timer;
         private int fps;
 
         void Start()
@@ -25,16 +26,18 @@ namespace mj.gist
             if (Input.GetKeyDown(showKey))
                 show = !show;
 
-            time = Time.realtimeSinceStartup;
+            timer = Time.realtimeSinceStartup;
         }
+
 
         private void OnGUI()
         {
             if (!show) return;
 
             GUI.skin.label.fontSize = debugFontSize;
-            GUILayout.Label($"Time: {time}");
+            GUILayout.Label($"Timer: {TimeUtil.SecondsToHMS((int)timer)}");
             GUILayout.Label($"Fps:  {fps}");
+            GUILayout.Label($"Time: { DateTime.Now.ToString("MMMM dd HH:mm")}");
         }
 
         IEnumerator FpsCounter()
