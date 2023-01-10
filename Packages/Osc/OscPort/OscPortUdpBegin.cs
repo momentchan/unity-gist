@@ -16,7 +16,7 @@ namespace Osc {
 			try {
 				_callback = new AsyncCallback(HandleReceive);
 
-				_udp = new UdpClient (LocalPort, AddressFamily.InterNetwork);
+				_udp = new UdpClient (localPort, AddressFamily.InterNetwork);
 				_udp.BeginReceive(_callback, null);
 			} catch (System.Exception e) {
 				RaiseError (e);

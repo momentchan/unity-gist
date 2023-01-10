@@ -9,17 +9,12 @@ namespace Osc
 {
     public class OscPortSocketGUI : OscPortSocket, IGUIUser
     {
-        public override int LocalPort => prefsLocalPort;
-        public override string DefaultRemoteHost => prefsDefaultRemoteHost;
-        public override int DefaultRemotePort => prefsDefaultRemotePort;
-        public override int LimitReceiveBuffer => prefsLimitReceiveBuffer;
-
         protected PrefsInt prefsLocalPort;
         protected PrefsString prefsDefaultRemoteHost;
         protected PrefsInt prefsDefaultRemotePort;
         protected PrefsInt prefsLimitReceiveBuffer;
 
-#region GUI
+        #region GUI
         public string GetName() => name;
 
         public void ShowGUI()
@@ -29,7 +24,7 @@ namespace Osc
             prefsDefaultRemotePort.DoGUI();
             prefsLimitReceiveBuffer.DoGUI();
         }
-#endregion
+        #endregion
 
         protected override void OnEnable()
         {
@@ -37,6 +32,11 @@ namespace Osc
             prefsDefaultRemoteHost = new PrefsString($"{GetName()}_defaultRemoteHost", "localhost");
             prefsDefaultRemotePort = new PrefsInt($"{GetName()}_defaultRemotePort", 8888);
             prefsLimitReceiveBuffer = new PrefsInt($"{GetName()}_limitReceiveBuffer", 30);
+
+            localPort = prefsLocalPort;
+            defaultRemoteHost = prefsDefaultRemoteHost;
+            defaultRemotePort = prefsDefaultRemotePort;
+            limitReceiveBuffer = prefsLimitReceiveBuffer;
 
             base.OnEnable();
         }

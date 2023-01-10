@@ -17,15 +17,10 @@ namespace Osc {
 
 		public ReceiveModeEnum receiveMode = ReceiveModeEnum.Event;
 
-		public virtual int LocalPort => localPort;
-		public virtual string DefaultRemoteHost => defaultRemoteHost;
-		public virtual int DefaultRemotePort => defaultRemotePort;
-		public virtual int LimitReceiveBuffer => limitReceiveBuffer;
-
-		[SerializeField] private int localPort = 0;
-		[SerializeField] private string defaultRemoteHost = "localhost";
-		[SerializeField] private int defaultRemotePort = 10000;
-		[SerializeField] private int limitReceiveBuffer = 10;
+		[SerializeField] protected int localPort = 0;
+		[SerializeField] protected string defaultRemoteHost = "localhost";
+		[SerializeField] protected int defaultRemotePort = 10000;
+		[SerializeField] protected int limitReceiveBuffer = 10;
 		
 		protected Parser _oscParser;
 		protected Queue<Capsule> _received;
@@ -57,7 +52,7 @@ namespace Osc {
 		public abstract void Send (byte[] oscData, IPEndPoint remote);
 
 		public IPAddress FindFromHostName(string hostname) {
-			var addresses = Dns.GetHostAddresses (DefaultRemoteHost);
+			var addresses = Dns.GetHostAddresses (defaultRemoteHost);
 			IPAddress address = IPAddress.None;
 			for (var i = 0; i < addresses.Length; i++) {
 				if (addresses[i].AddressFamily == AddressFamily.InterNetwork) {
@@ -68,7 +63,7 @@ namespace Osc {
 			return address;
 		}
         public void UpdateDefaultRemote () {
-            _defaultRemote = new IPEndPoint (FindFromHostName (DefaultRemoteHost), DefaultRemotePort);
+            _defaultRemote = new IPEndPoint (FindFromHostName (defaultRemoteHost), defaultRemotePort);
         }
 
 		protected virtual void OnEnable() {
@@ -94,7 +89,7 @@ namespace Osc {
 			_errors.Enqueue (e);
 		}
 		protected void Receive(OscPort.Capsule c) {
-			if (LimitReceiveBuffer <= 0 || _received.Count < LimitReceiveBuffer)
+			if (limitReceiveBuffer <= 0 || _received.Count < limitReceiveBuffer)
 				_received.Enqueue (c);
 		}
 
