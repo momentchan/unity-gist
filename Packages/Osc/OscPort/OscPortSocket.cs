@@ -18,7 +18,7 @@ namespace Osc {
 				base.OnEnable();
 
 				_udp = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-				_udp.Bind(new IPEndPoint(IPAddress.Any, localPort));
+				_udp.Bind(new IPEndPoint(IPAddress.Any, LocalPort));
 
 				_receiveBuffer = new byte[BUFFER_SIZE];
 
