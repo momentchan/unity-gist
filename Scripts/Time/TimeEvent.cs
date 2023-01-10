@@ -58,6 +58,10 @@ namespace mj.gist
         [SerializeField] private int hour;
         [SerializeField] private int minute;
         [SerializeField] private int second;
+        [SerializeField] private List<DayOfWeek> dayOfWeeks;
+
+        public bool Contain(DayOfWeek dayOfWeek)
+            => dayOfWeeks.Count == 0 || dayOfWeeks.Count != 0 && dayOfWeeks.Contains(dayOfWeek);
 
         public int Hour { get { return hour; } set { hour = value; } }
         public int Minute { get { return minute; } set { minute = value; } }
@@ -69,6 +73,8 @@ namespace mj.gist
             minute = time.Minute;
             hour = time.Hour;
         }
+
+        public override string ToString() => $"{hour}:{minute}:{second}";
     }
 
     [Serializable]
@@ -77,17 +83,17 @@ namespace mj.gist
         [SerializeField] private string name = "Event";
         [SerializeField] private TimeData time;
         [SerializeField] private bool triggered = false;
+        [SerializeField] private UnityEvent action;
 
         public DateTime Time => new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, time.Hour, time.Minute, time.Second);
-        private UnityEvent action;
 
         public bool Triggered => triggered;
-        public bool Active => Time < DateTime.Now;
+        public bool Active => Time < DateTime.Now && time.Contain(DateTime.Now.DayOfWeek);
 
         public void Trigger()
         {
             action?.Invoke();
-            Debug.Log($"{name} is triggered at {DateTime.Now.ToString("MMMM dd HH:mm")}");
+            Debug.Log($"{name} {time} is triggered at {DateTime.Now.ToString("MMMM dd HH:mm")}");
             triggered = true;
         }
     }

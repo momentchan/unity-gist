@@ -10,8 +10,8 @@ namespace mj.gist
         [SerializeField] private int targetFrameRate = 30;
         [SerializeField] private int debugFontSize = 30;
         [SerializeField] private KeyCode showKey = KeyCode.E;
-
         private bool show = true;
+
         private float timer;
         private int fps;
 
@@ -35,8 +35,8 @@ namespace mj.gist
             if (!show) return;
 
             GUI.skin.label.fontSize = debugFontSize;
-            GUILayout.Label($"Timer: {TimeUtil.SecondsToHMS((int)timer)}");
             GUILayout.Label($"Fps:  {fps}");
+            GUILayout.Label($"Timer: {TimeUtil.SecondsToHMS((int)timer)}");
             GUILayout.Label($"Time: { DateTime.Now.ToString("MMMM dd HH:mm")}");
         }
 
