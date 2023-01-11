@@ -6,8 +6,4 @@ public static class CompareUtil
     {
         return value > range.x && value < range.y;
     }
-    public static float Interpolate(this Vector2 range, float value)
-    {
-        return (value - range.x) / (range.y - range.x);
-    }
 }
