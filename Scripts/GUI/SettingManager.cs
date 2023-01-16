@@ -21,7 +21,7 @@ namespace mj.gist
 
         private void Start()
         {
-            var users = FindObjectsOfType<MonoBehaviour>().OfType<IGUIUser>().ToList();
+            var users = FindObjectsOfType<MonoBehaviour>(true).OfType<IGUIUser>().ToList();
 
             windowLaunchers = new WindowLaunchers
             {
@@ -29,6 +29,7 @@ namespace mj.gist
             };
             foreach (var user in users)
             {
+                user.SetupGUI();
                 windowLaunchers.Add(user.GetName(), () => user.ShowGUI());
             }
             windowLaunchers.Add("PrefsSearch", PrefsSearch.DoGUI).SetWidth(600f).SetHeight(800f);

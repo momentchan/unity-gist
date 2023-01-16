@@ -17,6 +17,10 @@ namespace Osc
         #region GUI
         public string GetName() => name;
 
+        public void SetupGUI()
+        {
+        }
+
         public void ShowGUI()
         {
             prefsLocalPort.DoGUI();

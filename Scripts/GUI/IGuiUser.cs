@@ -4,6 +4,7 @@ namespace mj.gist
     {
         string GetName();
         void ShowGUI();
+        void SetupGUI();
     }
 
     public interface IGUIPartial
