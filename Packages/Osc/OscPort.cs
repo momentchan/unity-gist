@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine;
 using System.Threading;
+using System.Linq;
 
 namespace Osc {
 	public abstract class OscPort : MonoBehaviour {
 		public enum ReceiveModeEnum { Event = 0, Poll }
 
 		public const int BUFFER_SIZE = 1 << 16;
-		public CapsuleEvent OnReceive;
+		public List<ReceiveEvent> OnReceives;
 		public ExceptionEvent OnError;
 
 		public ReceiveModeEnum receiveMode = ReceiveModeEnum.Event;
@@ -79,7 +80,12 @@ namespace Osc {
 			if (receiveMode == ReceiveModeEnum.Event) {
 				lock (_received)
 					while (_received.Count > 0)
-						OnReceive.Invoke (_received.Dequeue ());
+					{
+						var capsule = _received.Dequeue();
+						var receive = OnReceives.FirstOrDefault(r => r.path == capsule.message.path);
+						if(receive!=null)
+							receive.onReceived.Invoke(capsule);
+					}
 				lock (_errors)
 					while (_errors.Count > 0)
 						OnError.Invoke (_errors.Dequeue ());
@@ -108,6 +114,12 @@ namespace Osc {
 
 	[System.Serializable]
 	public class ExceptionEvent : UnityEvent<Exception> {}
+	[System.Serializable]
+	public class ReceiveEvent
+    {
+		public string path;
+		public CapsuleEvent onReceived;
+    }
 	[System.Serializable]
 	public class CapsuleEvent : UnityEvent<OscPort.Capsule> {}
 	[System.Serializable]
