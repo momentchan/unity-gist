@@ -1,9 +1,11 @@
 #define USE_GUI
 
 #if USE_GUI
+using System.Linq;
 using mj.gist;
 using PrefsGUI;
 using PrefsGUI.RapidGUI;
+using UnityEngine;
 
 namespace Osc
 {
@@ -41,6 +43,10 @@ namespace Osc
             defaultRemoteHost = prefsDefaultRemoteHost;
             defaultRemotePort = prefsDefaultRemotePort;
             limitReceiveBuffer = prefsLimitReceiveBuffer;
+
+            var users = FindObjectsOfType<MonoBehaviour>(true).OfType<IOscUser>().ToList();
+            foreach (var user in users)
+                user.Server = this;
 
             base.OnEnable();
         }
