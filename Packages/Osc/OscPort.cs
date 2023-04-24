@@ -21,11 +21,14 @@ namespace Osc {
 		[SerializeField] protected string defaultRemoteHost = "localhost";
 		[SerializeField] protected int defaultRemotePort = 10000;
 		[SerializeField] protected int limitReceiveBuffer = 10;
-		
+
+		public virtual bool IsSendToLocal { get; set; } = false;
+
 		protected Parser _oscParser;
 		protected Queue<Capsule> _received;
 		protected Queue<System.Exception> _errors;
 		protected IPEndPoint _defaultRemote;
+		protected IPEndPoint _local;
 
 		public virtual IEnumerable<Capsule> PollReceived() {
 			lock (_received) {
@@ -49,10 +52,16 @@ namespace Osc {
 		public void Send(byte[] oscData) {
 			Send (oscData, _defaultRemote);
 		}
+
+		public void SendToLocal(byte[] oscData)
+		{
+			Send(oscData, _local);
+		}
+
 		public abstract void Send (byte[] oscData, IPEndPoint remote);
 
 		public IPAddress FindFromHostName(string hostname) {
-			var addresses = Dns.GetHostAddresses (defaultRemoteHost);
+			var addresses = Dns.GetHostAddresses (hostname);
 			IPAddress address = IPAddress.None;
 			for (var i = 0; i < addresses.Length; i++) {
 				if (addresses[i].AddressFamily == AddressFamily.InterNetwork) {
@@ -64,6 +73,7 @@ namespace Osc {
 		}
         public void UpdateDefaultRemote () {
             _defaultRemote = new IPEndPoint (FindFromHostName (defaultRemoteHost), defaultRemotePort);
+			_local = new IPEndPoint (FindFromHostName ("localhost"), defaultRemotePort);
         }
 
 		protected virtual void OnEnable() {
