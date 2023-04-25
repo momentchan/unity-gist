@@ -11,6 +11,7 @@ namespace Osc
 {
     public class OscPortSocketGUI : OscPortSocket, IGUIUser
     {
+        protected PrefsBool prefsSendToLocal;
         protected PrefsInt prefsLocalPort;
         protected PrefsString prefsDefaultRemoteHost;
         protected PrefsInt prefsDefaultRemotePort;
@@ -25,6 +26,7 @@ namespace Osc
 
         public void ShowGUI()
         {
+            prefsSendToLocal.DoGUI();
             prefsLocalPort.DoGUI();
             prefsDefaultRemoteHost.DoGUI();
             prefsDefaultRemotePort.DoGUI();
@@ -34,6 +36,7 @@ namespace Osc
 
         protected override void OnEnable()
         {
+            prefsSendToLocal = new PrefsBool($"{GetName()}_sendToLocal", false);
             prefsLocalPort = new PrefsInt($"{GetName()}_localPort", 8887);
             prefsDefaultRemoteHost = new PrefsString($"{GetName()}_defaultRemoteHost", "localhost");
             prefsDefaultRemotePort = new PrefsInt($"{GetName()}_defaultRemotePort", 8888);
@@ -49,6 +52,12 @@ namespace Osc
                 user.Server = this;
 
             base.OnEnable();
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            IsSendToLocal = prefsSendToLocal;
         }
     }
 }
