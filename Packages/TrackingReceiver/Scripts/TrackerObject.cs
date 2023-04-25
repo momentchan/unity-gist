@@ -10,14 +10,23 @@ namespace mj.gist.tracking
         [SerializeField] private int uniqueId;
         [SerializeField] private Transform world;
         [SerializeField] private Transform projected;
-        [SerializeField] private Transform screen;
+        [SerializeField] private Transform debug;
 
+        public bool IsActive => idleT < TrackingManager.IDLE_TIME;
+        public TrackerData Data => data;
         private TrackingManager manager => TrackingManager.Instance;
+
 
         private List<MeshRenderer> renderers;
         private float idleT = Mathf.Infinity;
-
+        private TrackerData data;
         private Vector2 uv;
+
+        public void Setup(int playerId)
+        {
+            renderers = GetComponentsInChildren<MeshRenderer>().ToList();
+            data = new TrackerData(playerId);
+        }
 
         public void UpdatePosition(int uniqueId, Vector3 sensorPos)
         {
@@ -41,12 +50,8 @@ namespace mj.gist.tracking
 
             world.transform.position = wpos;
             projected.transform.position = trans.right * projWorldPos.x + trans.up * projWorldPos.y;
-            screen.transform.position = Camera.main.ViewportToWorldPoint(new Vector3(uv.x, uv.y, 1));
-        }
-
-        private void Start()
-        {
-            renderers = GetComponentsInChildren<MeshRenderer>().ToList();
+            debug.transform.position = Camera.main.ViewportToWorldPoint(new Vector3(uv.x, uv.y, Camera.main.farClipPlane));
+            debug.transform.localScale = Vector3.one * manager.DebugSize;
         }
 
         private void Update()
@@ -56,6 +61,34 @@ namespace mj.gist.tracking
             var active = idleT < TrackingManager.IDLE_TIME;
             foreach (var r in renderers)
                 r.enabled = active && manager.DebugMode;
+
+            data.Update(active, uniqueId, uv, debug.transform.position);
+        }
+    }
+
+    public struct TrackerData
+    {
+        public int isActive;
+        public int playerId;
+        public int uniqueId;
+        public Vector2 uv;
+        public Vector3 wpos;
+
+        public TrackerData(int playerId)
+        {
+            this.playerId = playerId;
+            isActive = 0;
+            uniqueId = -1;
+            uv = Vector2.zero;
+            wpos = Vector3.zero;
+        }
+
+        public void Update(bool active, int uniqueId, Vector2 uv, Vector3 wpos)
+        {
+            this.isActive = active ? 1 : 0;
+            this.uniqueId = uniqueId;
+            this.uv = uv;
+            this.wpos = wpos;
         }
     }
 }

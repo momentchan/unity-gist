@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace mj.gist.tracking
@@ -7,34 +8,28 @@ namespace mj.gist.tracking
     public class Tracker : MonoBehaviour
     {
         [SerializeField] private TrackerObject objectPrefab;
-        public int playerIndex;
-        public List<TrackerObject> trackObjects = new List<TrackerObject>();
+        public int PlayerId { get; private set; }
+        private List<TrackerObject> trackObjects = new List<TrackerObject>();
 
-        public bool IsActive => idleT < TrackingManager.IDLE_TIME;
-        private float idleT = Mathf.Infinity;
+        public bool IsActive => trackObjects.Where(o => o.IsActive).Count() != 0;
 
-        public void Setup(int userId)
+        public List<TrackerData> TrackerData => trackObjects.Select(o => o.Data).ToList();
+
+        public void Setup(int playerId)
         {
-            this.playerIndex = userId;
-        }
+            this.PlayerId = playerId;
 
-        private void Start()
-        {
             for (var i = 0; i < TrackingManager.Instance.TargetJointsCount; i++)
             {
                 var o = Instantiate(objectPrefab, transform);
+                o.Setup(PlayerId);
                 trackObjects.Add(o);
             }
         }
 
-        private void Update()
+        public void UpdateTracker(int jointId, int uniqueId, Vector3 pos)
         {
-            idleT += Time.deltaTime;
-        }
-
-        public void Activate()
-        {
-            idleT = 0;
+            trackObjects[jointId].UpdatePosition(uniqueId, pos);
         }
     }
 

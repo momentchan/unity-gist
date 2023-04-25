@@ -50,7 +50,7 @@ MonoBehaviour:
   uniqueId: 0
   world: {fileID: 6452937503538704789}
   projected: {fileID: 5339824475793542222}
-  screen: {fileID: 5973354554521211922}
+  debug: {fileID: 5973354554521211922}
 --- !u!1 &1414634830799693866
 GameObject:
   m_ObjectHideFlags: 0
@@ -229,7 +229,7 @@ GameObject:
   - component: {fileID: 912490795152132245}
   - component: {fileID: 6319197792686641225}
   m_Layer: 7
-  m_Name: Screen
+  m_Name: Debug
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -248,7 +248,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1127087804698466210}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &912490795152132245
 MeshFilter:

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Osc;
 using PrefsGUI;
 using PrefsGUI.RapidGUI;
@@ -11,6 +13,8 @@ namespace mj.gist.tracking
     {
         public static readonly float IDLE_TIME = 2f;
         public int TargetJointsCount => targetJoints.Count;
+        public GraphicsBuffer TrackerBuffer => trackerBuffer;
+        public int TotalTrackerObjectsCount => maxTrackers * targetJoints.Count;
 
         [SerializeField] private InteractiveVolume volume;
         [SerializeField] private Tracker tracker;
@@ -18,8 +22,12 @@ namespace mj.gist.tracking
 
         private List<Tracker> trackers = new List<Tracker>();
 
+        private GraphicsBuffer trackerBuffer;
+        private List<TrackerData> trackerData = new List<TrackerData>();
+
         public Transform VolumeTrans => volume.transform;
 
+        public float DebugSize => debugSize;
         public Vector3 InteractiveRange => interactiveRange;
         public Vector2 RangeRemapX => rangeRemapX;
         public Vector2 RangeRemapY => rangeRemapY;
@@ -29,6 +37,7 @@ namespace mj.gist.tracking
         public bool DebugMode => trackerDebug;
         private PrefsInt maxTrackers = new PrefsInt("MaxTrackers", 20);
         private PrefsBool trackerDebug = new PrefsBool("TrackerDebug", false);
+        private PrefsFloat debugSize = new PrefsFloat("DebugSize", 1);
         private PrefsVector3 interactiveRange = new PrefsVector3("InteractiveRange(m)", new Vector3(2f, 2f, 3f));
         private PrefsVector2 rangeRemapX = new PrefsVector2("RangeRemapX (from, to)", new Vector2(0, 1f));
         private PrefsVector2 rangeRemapY = new PrefsVector2("RangeRemapY (from, to)", new Vector2(0, 1f));
@@ -40,6 +49,7 @@ namespace mj.gist.tracking
         {
             maxTrackers.DoGUI();
             trackerDebug.DoGUI();
+            debugSize.DoGUI();
             interactiveRange.DoGUI();
             rangeRemapX.DoGUI();
             rangeRemapY.DoGUI();
@@ -57,6 +67,20 @@ namespace mj.gist.tracking
                 tracker.Setup(i);
                 trackers.Add(tracker);
             }
+
+            trackerBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, TotalTrackerObjectsCount, Marshal.SizeOf(typeof(TrackerData)));
+        }
+
+        private void Update()
+        {
+            UpdateBuffer();
+        }
+
+        private void UpdateBuffer()
+        {
+            trackerData.Clear();
+            trackers.ForEach(t => trackerData.AddRange(t.TrackerData));
+            trackerBuffer.SetData(trackerData.ToArray());
         }
 
         public void OscMessageReceived(OscPort.Capsule e)
@@ -76,10 +100,7 @@ namespace mj.gist.tracking
             //Debug.Log($"{uniqueId} {playerId} {type} {pos}");
 
             var tracker = trackers[playerId];
-            tracker.Activate();
-
-            var trackObject = tracker.trackObjects[jointId];
-            trackObject.UpdatePosition(uniqueId, pos);
+            tracker.UpdateTracker(jointId, uniqueId, pos);
         }
     }
 }
