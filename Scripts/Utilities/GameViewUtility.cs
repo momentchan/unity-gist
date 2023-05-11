@@ -120,6 +120,7 @@ namespace mj.gist
             return GameViewSizeGroupType.Android;
 #endif
             // Add your own
+            return GameViewSizeGroupType.Standalone;
         }
     }
 }

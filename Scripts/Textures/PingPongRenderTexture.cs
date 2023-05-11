@@ -7,19 +7,19 @@ namespace mj.gist {
         public RenderTexture Read => rt0;
         public RenderTexture Write => rt1;
 
-        public PingPongRenderTexture(int w, int h, int depth, RenderTextureFormat format, FilterMode filter = FilterMode.Point) {
+        public PingPongRenderTexture(int w, int h, int depth, RenderTextureFormat format, bool enableRandomWrite = true, FilterMode filter = FilterMode.Point) {
 
             rt0 = new RenderTexture(w, h, depth, format) {
                 filterMode = filter,
                 wrapMode = TextureWrapMode.Clamp,
                 hideFlags = HideFlags.HideAndDontSave,
-                enableRandomWrite = true
+                enableRandomWrite = enableRandomWrite
             };
             rt1 = new RenderTexture(w, h, depth, format) {
                 filterMode = filter,
                 wrapMode = TextureWrapMode.Clamp,
                 hideFlags = HideFlags.HideAndDontSave,
-                enableRandomWrite = true
+                enableRandomWrite = enableRandomWrite
             };
             rt0.Create();
             rt1.Create();
