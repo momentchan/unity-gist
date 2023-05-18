@@ -6,14 +6,14 @@ namespace mj.gist.postprocessing {
     [RequireComponent(typeof(Camera))]
     public class ImageEffectBase : MonoBehaviour {
 
+        [SerializeField] protected bool enable = true;
         [SerializeField] protected Material material;
-        [SerializeField] protected bool enable;
 
         protected virtual void Start() {
         }
 
         protected virtual void OnRenderImage(RenderTexture src, RenderTexture dst) {
-            if (!IsSupportAndEnable())
+            if (IsSupportAndEnable())
                 Graphics.Blit(src, dst, material);
             else
                 Graphics.Blit(src, dst);
