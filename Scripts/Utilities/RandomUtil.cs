@@ -12,8 +12,20 @@ public static class RandomUtil
         Random.state = cache;
     }
 
-    public static float RandomInRange(this Vector2 range, float seed)
+    public static T RandomPick<T>(this List<T> list)
     {
-        return Mathf.Lerp(range.x, range.y, seed);
+        if (list == null)
+        {
+            throw new System.ArgumentNullException(nameof(list));
+        }
+
+        if (list.Count == 0)
+        {
+            throw new System.InvalidOperationException("The list is empty.");
+        }
+
+        int index = new System.Random().Next(list.Count);
+        return list[index];
     }
+
 }
