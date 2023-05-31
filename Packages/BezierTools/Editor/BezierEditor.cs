@@ -33,7 +33,7 @@ namespace BezierTools
             {
                 bezier.data.Reset();
             }
-
+            
             if (bezier.data.DrawInspectorGUI(selectedIndex, ref isDrawDirection))
             {
                 EditorUtility.SetDirty(bezier);

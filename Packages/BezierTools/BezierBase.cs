@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using System.IO;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -32,7 +33,13 @@ namespace BezierTools
 
         [SerializeField]
         private bool loop = false;
-
+        [SerializeField]
+        private int sampleCount = 100;
+        public int SampleCount
+        {
+            get { return sampleCount; }
+            set { sampleCount = value; }
+        }
         #region public property
         public bool Loop
         {
@@ -827,6 +834,7 @@ namespace BezierTools
 
                 EditorGUI.BeginChangeCheck();
                 bool loop = EditorGUILayout.Toggle("Loop", Loop);
+                int sampleCount = EditorGUILayout.IntField("SampleCount", SampleCount);
                 if (EditorGUI.EndChangeCheck())
                 {
                     Loop = loop;
@@ -870,6 +878,10 @@ namespace BezierTools
                     Reset();
                     isChange = true;
                 }
+                if (GUILayout.Button("Bake"))
+                {
+                    BakeToTexture();
+                }
                 EditorGUILayout.EndHorizontal();
 
                 if (bezierCurvesLength != null)
@@ -891,6 +903,34 @@ namespace BezierTools
                 CalcBezierLength();
             }
             return isChange;
+        }
+
+        private void BakeToTexture()
+        {
+            var rt = new Texture2D(SampleCount, 2, TextureFormat.RGBAFloat, false);
+            rt.wrapMode = TextureWrapMode.Clamp;
+
+            for (int i = 0; i < SampleCount; i++)
+            {
+                var nt = (1f * i / SampleCount) % 1;
+                var pos = PositionNormalizeT(nt);
+                var vel = VelocityNormalizeT(nt);
+                Debug.Log(pos);
+                Debug.Log(vel);
+                rt.SetPixel(i, 0, new Color(pos.x, pos.y, pos.z, 0));
+                rt.SetPixel(i, 1, new Color(vel.x, vel.y, vel.z, 0));
+            }
+            rt.Apply();
+
+            //byte[] pngBytes = rt.EncodeToPNG();
+
+            var path = $"{AssetCreationHelper.GetCurrentAssetDirectoryPathRelative()}/BezierTex.asset";
+            AssetDatabase.CreateAsset(rt, path);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+
+            //File.WriteAllBytes(path, pngBytes);
         }
 
         private bool DrawSelectedPointInspector(int selectedIndex)
