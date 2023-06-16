@@ -8,4 +8,9 @@ public static class VectorUtil
     {
         return Mathf.Lerp(range.x, range.y, value);
     }
+
+    public static float GetRandom(this Vector2 range)
+    {
+        return Random.Range(range.x, range.y);
+    }
 }
