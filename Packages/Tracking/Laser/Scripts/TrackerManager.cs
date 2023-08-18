@@ -87,7 +87,7 @@ namespace mj.gist.tracking.Laser
             var actives = 0;
             var minId = -1;
             var minDist = 1e5;
-            for (var i = 0; i < Trackers.Length; i++)
+            for (var i = 0; i < trackerNum; i++)
             {
                 var tracker = Trackers[i];
                 var dist = (pos - tracker.pos).magnitude;
@@ -102,7 +102,7 @@ namespace mj.gist.tracking.Laser
             }
             else
             {
-                var newID = (actives + 1) % Trackers.Length;
+                var newID = (actives + 1) % trackerNum;
                 var d = GetUpdatedTracker(newID, pos, isMoving);
                 Trackers[newID] = d;
             }
