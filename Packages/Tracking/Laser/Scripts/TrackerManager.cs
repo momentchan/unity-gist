@@ -13,16 +13,15 @@ namespace mj.gist.tracking.Laser
         public TrackerData[] ActiveTracekrs => Trackers.Where(t=>t.active==1).ToArray();
 
         public TrackerData MouseData => Trackers[mouseId];
+        public int TotalTrackerNum => trackerNum + 1; // plus : mouse
 
         private int mouseId => TotalTrackerNum - 1;
-        private int TotalTrackerNum => trackerNum + 1; // plus : mouse
 
         [SerializeField] private int trackerNum = 20;
         [SerializeField] private float distanceThreshold = 0.1f;
 
         private static readonly float RANDOM_SMOOTH_FACTOR = 0.5f;
         private static readonly float ALIVE_DURATION = 1f;
-
 
         public void OnReceivePoint(OscPort.Capsule c)
         {
@@ -39,12 +38,12 @@ namespace mj.gist.tracking.Laser
             }
         }
 
-        private void Start()
+        protected override void Awake()
         {
+            base.Awake();
             Trackers = new TrackerData[TotalTrackerNum];
             TrackerBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, TotalTrackerNum, Marshal.SizeOf(typeof(TrackerData)));
         }
-
 
         private void Update()
         {
