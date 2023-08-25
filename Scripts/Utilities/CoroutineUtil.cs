@@ -7,9 +7,9 @@ namespace mj.gist
 {
     public static class CoroutineUtil
     {
-        public static IEnumerator OneTime(float duration, Action<float> action, Action onStart = null, Action onFinished = null)
+        public static IEnumerator OneTime(float duration, Action<float> action, Action start = null, Action finish = null)
         {
-            onStart?.Invoke();
+            start?.Invoke();
 
             var t = 0f;
             while (t < duration)
@@ -19,13 +19,20 @@ namespace mj.gist
                 yield return null;
             }
 
-            onFinished?.Invoke();
+            finish?.Invoke();
         }
 
 
-        public static IEnumerator Fade(float from, float to, float duration, Action<float> action, Action onStart = null, Action onFinished = null)
+        public static IEnumerator Fade(float from, float to, float duration, Action<float> action, Action start = null, Action finish = null)
         {
-            return OneTime(duration, (ratio) => action(Mathf.Lerp(from, to, ratio)), onStart, onFinished);
+            return OneTime(duration, (ratio) => action(Mathf.Lerp(from, to, ratio)), start, finish);
+        }
+
+        public static IEnumerator WaitForSeconds(float time, Action action, Action start = null)
+        {
+            start?.Invoke();
+            yield return new WaitForSeconds(time);
+            action.Invoke();
         }
     }
 }
