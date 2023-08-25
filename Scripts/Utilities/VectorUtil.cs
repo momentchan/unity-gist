@@ -23,4 +23,20 @@ public static class VectorUtil
     {
         return (value - range.x) / (range.y - range.x);
     }
+    public static float Min(this Vector2 vec)
+    {
+        return Mathf.Min(vec.x, vec.y);
+    }
+    public static float Min(this Vector3 vec)
+    {
+        return Mathf.Min(vec.x, vec.y, vec.z);
+    }
+    public static float Max(this Vector2 vec)
+    {
+        return Mathf.Max(vec.x, vec.y);
+    }
+    public static float Max(this Vector3 vec)
+    {
+        return Mathf.Max(vec.x, vec.y, vec.z);
+    }
 }
