@@ -100,7 +100,7 @@ namespace EasySpringBone
             this.extraForce = Quaternion.Euler(0, 0, this.extraForceDir) * (Vector3.right * this.forceLength);
         }
 
-        private void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
             if(this.alwaysUpdate)
                 if(this.withExtraForce)
