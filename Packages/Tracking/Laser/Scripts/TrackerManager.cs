@@ -62,7 +62,8 @@ namespace mj.gist.tracking.Laser
                 pos = pos,
                 dis = pos - MouseData.pos,
                 dir = (pos - MouseData.pos).normalized,
-                lastUpdateTime = Time.time
+                lastUpdateTime = Time.time,
+                activeRatio = 1
             };
             Trackers[mouseId] = data;
         }
