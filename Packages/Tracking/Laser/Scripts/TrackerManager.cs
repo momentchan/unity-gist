@@ -10,7 +10,7 @@ namespace mj.gist.tracking.Laser
     {
         public GraphicsBuffer TrackerBuffer { get; private set; }
         public TrackerData[] Trackers { get; private set; }
-        public TrackerData[] ActiveTracekrs => Trackers.Where(t=>t.active==1).ToArray();
+        public TrackerData[] ActiveTracekrs => Trackers.Where(t => t.active == 1).ToArray();
 
         public TrackerData MouseData => Trackers[mouseId];
         public int TotalTrackerNum => trackerNum + 1; // plus : mouse
@@ -47,14 +47,12 @@ namespace mj.gist.tracking.Laser
 
         private void Update()
         {
-#if UNITY_EDITOR
             UpdateMouseTrackerData();
-#endif
             UpdateTrackers();
         }
         private void UpdateMouseTrackerData()
         {
-            var pos = (Vector2)Camera.main.ScreenToViewportPoint(Input.mousePosition);
+            var pos = new Vector2(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height);
             var data = new TrackerData
             {
                 active = 1,

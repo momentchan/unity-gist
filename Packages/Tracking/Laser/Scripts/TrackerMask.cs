@@ -11,16 +11,12 @@ namespace mj.gist.tracking.Laser
 
         [SerializeField] private float radius = 0.05f;
         [SerializeField] private RenderTexture mask;
+        [SerializeField] private Shader shader;
 
-        private Shader shader;
         private Material mat;
 
         void Awake()
         {
-            shader = Shader.Find("Unlit/TrackerMask");
-            if (shader == null)
-                return;
-
             mat = new Material(shader);
         }
 
