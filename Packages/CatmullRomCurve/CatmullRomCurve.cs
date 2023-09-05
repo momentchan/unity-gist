@@ -82,7 +82,7 @@ namespace CatmullRom
             var poly = new CubicPoly3D(p0, p1, p2, p3);
             return poly.Calculate(weight);
         }
-
+#if UNITY_EDITOR
         public void DrawFrenetFrames(Transform transform, int segments)
         {
             Handles.matrix = transform.localToWorldMatrix;
@@ -110,6 +110,7 @@ namespace CatmullRom
                 Handles.ArrowHandleCap(0, p, Quaternion.LookRotation(frame.Binormal), size, EventType.Repaint);
             }
         }
+#endif
     }
 }
 
