@@ -22,7 +22,7 @@ Shader "Unlit/TrackerMask"
             float4 col = 0;
             float2 dis = (d.pos - uv) * float2(_Aspect, 1);
             float len = length(dis);
-            col.rgb += smoothstep(_Radius, _Radius * 0.1, len);
+            col.rgb += smoothstep(_Radius, _Radius * 0.1, len) * d.activeRatio;
             return col;
         }
 
@@ -32,10 +32,7 @@ Shader "Unlit/TrackerMask"
             for (int t = 0; t < _TrackerNum; t++)
             {
                 TrackerData d = _TrackerBuffer[t];
-                if (d.active)
-                {
-                    col += ComputeMaskValue(i.uv, d);
-                }
+                col += ComputeMaskValue(i.uv, d);
             }
             return col;
         }

@@ -7,7 +7,7 @@ namespace mj.gist {
     public class CameraViewController : MonoBehaviour {
 
         [SerializeField] protected float speedH, speedV;
-        private Camera camera;
+        private new Camera camera;
         private float yaw, pitch;
 
         void Start() {

@@ -118,9 +118,10 @@ namespace mj.gist
             return GameViewSizeGroupType.iOS;
 #elif UNITY_ANDROID
             return GameViewSizeGroupType.Android;
-#endif
+#else
             // Add your own
             return GameViewSizeGroupType.Standalone;
+#endif
         }
     }
 }

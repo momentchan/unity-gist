@@ -21,7 +21,8 @@ namespace mj.gist.tracking.Laser
         [SerializeField] private float distanceThreshold = 0.1f;
 
         private static readonly float RANDOM_SMOOTH_FACTOR = 0.5f;
-        private static readonly float ALIVE_DURATION = 1f;
+        private static readonly float ALIVE_DURATION = 0.1f;
+        private static readonly float FADE_DURATION = 1f;
 
         public void OnReceivePoint(OscPort.Capsule c)
         {
@@ -74,7 +75,7 @@ namespace mj.gist.tracking.Laser
                 if (d.lastUpdateTime < Time.time - ALIVE_DURATION)
                 {
                     d.active = 0;
-                    d.activeRatio = Mathf.Clamp01(d.activeRatio - Time.deltaTime / ALIVE_DURATION);
+                    d.activeRatio = Mathf.Clamp01(d.activeRatio - Time.deltaTime / FADE_DURATION);
                     Trackers[i] = d;
                 }
             }
@@ -119,7 +120,7 @@ namespace mj.gist.tracking.Laser
             d.dir = d.dis.normalized;
             d.isMoving = isMoving;
             d.lastUpdateTime = Time.time;
-            d.activeRatio = Mathf.Clamp(prevRatio + Time.deltaTime / ALIVE_DURATION, 0, 1);
+            d.activeRatio = Mathf.Clamp(prevRatio + Time.deltaTime / FADE_DURATION, 0, 1);
             return d;
         }
 
