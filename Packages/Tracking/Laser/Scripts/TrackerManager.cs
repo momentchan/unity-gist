@@ -8,17 +8,29 @@ namespace mj.gist.tracking.Laser
 {
     public class TrackerManager : SingletonMonoBehaviour<TrackerManager>
     {
+        [SerializeField] private int trackerNum = 20;
+        [SerializeField] private float distanceThreshold = 0.1f;
+        [SerializeField] private bool mouseUpdate = true;
+
         public GraphicsBuffer TrackerBuffer { get; private set; }
         public TrackerData[] Trackers { get; private set; }
         public TrackerData[] ActiveTracekrs => Trackers.Where(t => t.active == 1).ToArray();
 
         public TrackerData MouseData => Trackers[mouseId];
         public int TotalTrackerNum => trackerNum + 1; // plus : mouse
+        public bool MouseUpdate
+        {
+            get
+            {
+                return mouseUpdate;
+            }
+            set
+            {
+                value = mouseUpdate;
+            }
+        }
 
         private int mouseId => TotalTrackerNum - 1;
-
-        [SerializeField] private int trackerNum = 20;
-        [SerializeField] private float distanceThreshold = 0.1f;
 
         private static readonly float RANDOM_SMOOTH_FACTOR = 0.5f;
         private static readonly float ALIVE_DURATION = 0.1f;
@@ -48,7 +60,9 @@ namespace mj.gist.tracking.Laser
 
         private void Update()
         {
-            UpdateMouseTrackerData();
+            if (mouseUpdate)
+                UpdateMouseTrackerData();
+
             UpdateTrackers();
         }
         private void UpdateMouseTrackerData()
