@@ -17,6 +17,7 @@ namespace mj.gist
 
         void Start()
         {
+            QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = targetFrameRate;
             StartCoroutine(FpsCounter());
         }

@@ -26,7 +26,7 @@ namespace mj.gist.tracking.Laser
             }
             set
             {
-                value = mouseUpdate;
+                mouseUpdate = value;
             }
         }
 
