@@ -23,6 +23,15 @@ public static class VectorUtil
     {
         return (value - range.x) / (range.y - range.x);
     }
+    public static float Remap(float value, Vector2 rangeIn, Vector2 rangeOut, bool clamp = true)
+    {
+        return Remap(value, rangeIn.x, rangeIn.y, rangeOut.x, rangeOut.y, clamp);
+    }
+    public static float Remap(float value, float in1, float in2, float out1, float out2, bool clamp = true)
+    {
+        var o = out1 + (value - in1) / (in2 - in1) * (out2 - out1);
+        return clamp ? Mathf.Clamp(o, out1, out2) : o;
+    }
     public static float Min(this Vector2 vec)
     {
         return Mathf.Min(vec.x, vec.y);
