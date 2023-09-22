@@ -34,5 +34,11 @@ namespace mj.gist
             yield return new WaitForSeconds(time);
             action.Invoke();
         }
+
+        public static IEnumerator WaitForOneFrame(Action action)
+        {
+            yield return null;
+            action.Invoke();
+        }
     }
 }
