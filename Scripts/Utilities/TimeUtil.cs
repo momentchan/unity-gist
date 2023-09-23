@@ -15,5 +15,20 @@ namespace mj.gist
                                     t.Minutes,
                                     t.Seconds);
         }
+
+        public static long ConvertToUnixTimestamp(DateTime dateTime)
+        {
+            // The Unix timestamp is the number of seconds since January 1, 1970 (UTC)
+            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            TimeSpan timeSpan = dateTime.ToUniversalTime() - unixEpoch;
+            return (long)timeSpan.TotalSeconds;
+        }
+
+        public static DateTime ConvertUnixTimestampToDateTime(long unixTimestamp)
+        {
+            // The Unix timestamp is the number of seconds since January 1, 1970 (UTC)
+            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return unixEpoch.AddSeconds(unixTimestamp).ToLocalTime();
+        }
     }
 }
