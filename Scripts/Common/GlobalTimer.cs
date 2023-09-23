@@ -38,7 +38,7 @@ namespace mj.gist
             GUI.skin.label.fontSize = debugFontSize;
             GUILayout.Label($"Fps:  {fps}");
             GUILayout.Label($"Timer: {TimeUtil.SecondsToHMS((int)timer)}");
-            GUILayout.Label($"Time: { DateTime.Now.ToString("MMMM dd HH:mm")}");
+            GUILayout.Label($"Time: { DateTime.Now.ToString("MMMM dd HH:mm:ss.ff")}");
         }
 
         IEnumerator FpsCounter()
