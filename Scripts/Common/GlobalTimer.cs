@@ -10,7 +10,7 @@ namespace mj.gist
         [SerializeField] private int targetFrameRate = 30;
         [SerializeField] private int debugFontSize = 30;
         [SerializeField] private KeyCode showKey = KeyCode.T;
-        private bool show = true;
+        [SerializeField] private bool show = true;
 
         private float timer;
         private int fps;
