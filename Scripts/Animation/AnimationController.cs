@@ -67,11 +67,12 @@ namespace mj.gist
                 yield return new WaitUntil(() => isFinished);
             }
         }
-
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             Handles.Label(transform.position, $"{currentClip.name} {state.normalizedTime.ToString("f2")}");
         }
+#endif
     }
 
     [System.Serializable]
