@@ -48,4 +48,9 @@ public static class VectorUtil
     {
         return Mathf.Max(vec.x, vec.y, vec.z);
     }
+
+    public static Vector3 Normalize(this Vector3 vec, float length)
+    {
+        return vec.normalized * length;
+    }
 }
