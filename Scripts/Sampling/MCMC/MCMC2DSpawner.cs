@@ -11,7 +11,7 @@ namespace mj.gist.sampling
         [SerializeField] private int nSamples = 100;
 
         [SerializeField] private GameObject prefab;
-        [SerializeField] private Texture2D texture;
+        [SerializeField] private Texture texture;
 
         [SerializeField] private float sleepDuration = 0.1f;
 
@@ -19,7 +19,7 @@ namespace mj.gist.sampling
 
         void Start()
         {
-            mcmc = new MCMC2DSampler(texture, stddev);
+            mcmc = new MCMC2DSampler((Texture2D)texture, stddev);
             StartCoroutine(StartChaining());
         }
         private IEnumerator StartChaining()
