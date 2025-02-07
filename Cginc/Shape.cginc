@@ -44,7 +44,11 @@ float drawPolygon(float2 UV, float Sides, float Width, float Height)
 float drawRectangleFill(float2 UV, float Width, float Height)
 {
 	float2 d = abs(UV * 2 - 1) - float2(Width, Height);
-	d = 1 - d / fwidth(d);
+#if defined(SHADER_STAGE_RAY_TRACING)
+    d = saturate((1 - saturate(d * FLT_MAX)));
+#else
+    d = saturate(1 - d / fwidth(d));
+#endif
 	return saturate(min(d.x, d.y));
 }
 
