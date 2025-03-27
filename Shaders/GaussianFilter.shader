@@ -13,7 +13,6 @@ Shader "Custom/Gaussian" {
 			
 			sampler2D _MainTex;
 			float4 _MainTex_TexelSize;
-
 			struct vsin {
 				float4 vertex : POSITION;
 				float2 uv : TEXCOORD0;

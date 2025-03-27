@@ -72,6 +72,8 @@ namespace PrefsGUI.Utility
 
         public Material _material;
         public bool _ignoreTexEnv = true;
+        public bool _useInclude = false;
+        public List<string> _includeProperties;
         public List<string> _ignoreProperties;
         public PropertySet _propertySet = new PropertySet();
 
@@ -92,9 +94,8 @@ namespace PrefsGUI.Utility
             for (var i = 0; i < count; ++i)
             {
                 var propertyName = ShaderUtil.GetPropertyName(shader, i);
-                
-                
-                if (!_ignoreProperties.Contains(propertyName))
+
+                if ((!_useInclude && !_ignoreProperties.Contains(propertyName)) || (_useInclude && _includeProperties.Contains(propertyName)))
                 {
                     var propertyDescription = ShaderUtil.GetPropertyDescription(shader, i);
                     _propertySet.propertyNameToDescription.Add(new (){name = propertyName, description = propertyDescription});

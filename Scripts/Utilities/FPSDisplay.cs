@@ -2,7 +2,18 @@ using UnityEngine;
 
 public class FPSDisplay : MonoBehaviour
 {
+    [SerializeField] private bool useTargetFramerate;
+    [SerializeField] private int targetFrameRate = 30;
     private float deltaTime = 0.0f;
+
+    private void Start()
+    {
+        if (useTargetFramerate)
+        {
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = targetFrameRate;
+        }
+    }
 
     void Update()
     {
