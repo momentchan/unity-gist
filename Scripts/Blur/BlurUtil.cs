@@ -4,17 +4,19 @@ using UnityEngine;
 
 public class BlurUtil
 {
-    public static void BlurWithDownSample(Texture src, RenderTexture dst, int lod, int nIterations, Material gaussianMat)
+    public static void BlurWithDownSample(Texture src, RenderTexture dst, int lod, int nIterations, float step, Material gaussianMat)
     {
         var tmp = DownSample(src, lod, gaussianMat);
-        Blur(tmp, dst, nIterations, gaussianMat);
+        Blur(tmp, dst, nIterations, step, gaussianMat);
 
         RenderTexture.ReleaseTemporary(tmp);
     }
 
 
-    public static void Blur(Texture src, RenderTexture dst, int nIterations, Material gaussianMat)
+    public static void Blur(Texture src, RenderTexture dst, int nIterations, float step, Material gaussianMat)
     {
+        gaussianMat.SetFloat("_Step", step);
+
         var tmp0 = RenderTexture.GetTemporary(src.width, src.height, 0, RenderTextureFormat.ARGB32);
         var tmp1 = RenderTexture.GetTemporary(src.width, src.height, 0, RenderTextureFormat.ARGB32);
         var iters = Mathf.Clamp(nIterations, 0, 10);

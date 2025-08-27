@@ -10,8 +10,10 @@ namespace mj.gist
         [SerializeField] private RenderTexture dst;
         [SerializeField] private Shader shader;
 
+
         public int nIterations = 3;
         public int lod = 1;
+        public float step = 1.0f;
         private Material mat
         {
             get
@@ -26,7 +28,7 @@ namespace mj.gist
         private void Update()
         {
             var tmp = BlurUtil.DownSample(src, lod, mat);
-            BlurUtil.Blur(src, dst, nIterations, mat);
+            BlurUtil.Blur(src, dst, nIterations, step, mat);
             RenderTexture.ReleaseTemporary(tmp);
         }
     }

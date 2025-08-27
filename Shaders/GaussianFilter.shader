@@ -10,6 +10,8 @@ Shader "Custom/Gaussian" {
 			CGINCLUDE
 			const static float WEIGHTS[8] = {  0.013,  0.067,  0.194,  0.226, 0.226, 0.194, 0.067, 0.013 };
 			const static float OFFSETS[8] = { -6.264, -4.329, -2.403, -0.649, 0.649, 2.403, 4.329, 6.264 };
+
+			float _Step;
 			
 			sampler2D _MainTex;
 			float4 _MainTex_TexelSize;
@@ -46,14 +48,14 @@ Shader "Custom/Gaussian" {
 				vs2psBlur OUT;
 				OUT.vertex = UnityObjectToClipPos(IN.vertex);
 				for (uint i = 0; i < 8; i++)
-					OUT.uv[i] = IN.uv + float2(OFFSETS[i], 0) * _MainTex_TexelSize.xy;
+					OUT.uv[i] = IN.uv + float2(OFFSETS[i], 0) * _MainTex_TexelSize.xy * _Step;
 				return OUT;
 			}
 			vs2psBlur vertBlurV(vsin IN) {
 				vs2psBlur OUT;
 				OUT.vertex = UnityObjectToClipPos(IN.vertex);
 				for (uint i = 0; i < 8; i++)
-					OUT.uv[i] = IN.uv + float2(0, OFFSETS[i]) * _MainTex_TexelSize.xy;
+					OUT.uv[i] = IN.uv + float2(0, OFFSETS[i]) * _MainTex_TexelSize.xy * _Step;
 				return OUT;
 			}
 			float4 fragBlur(vs2psBlur IN) : COLOR {

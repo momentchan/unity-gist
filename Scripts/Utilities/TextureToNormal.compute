@@ -1,0 +1,257 @@
+// ================================================================================
+// TextureToNormal Compute Shader
+// Converts RGBA textures to normal maps using various height extraction modes
+// and gradient calculation methods for high-quality normal map generation.
+// ================================================================================
+
+#pragma kernel RGBAtoNormal
+
+// ================================================================================
+// CONSTANTS
+// ================================================================================
+#define THREAD_GROUP_SIZE 8
+#define SOBEL_NORMALIZATION_FACTOR (1.0/8.0)
+#define CENTRAL_DIFF_FACTOR 0.5
+#define NORMAL_ENCODE_BIAS 0.5
+#define GAMMA_CORRECTION_FACTOR 12.92
+#define SRGB_ALPHA 0.055
+#define SRGB_GAMMA 2.4
+#define SRGB_THRESHOLD 0.04045
+
+// Height Mode Constants
+#define HEIGHT_MODE_R 0
+#define HEIGHT_MODE_G 1
+#define HEIGHT_MODE_B 2
+#define HEIGHT_MODE_A 3
+#define HEIGHT_MODE_LUMA709 4
+#define HEIGHT_MODE_MAX_RGB 5
+#define HEIGHT_MODE_AVG_RGB 6
+#define HEIGHT_MODE_CUSTOM 7
+
+// Gradient Kernel Constants
+#define KERNEL_CENTRAL_DIFFERENCE 0
+#define KERNEL_SOBEL_3X3 1
+
+// ================================================================================
+// RESOURCES
+// ================================================================================
+Texture2D<float4> _SourceRGBA;      // Input RGBA texture
+RWTexture2D<float4> _NormalTex;     // Output normal map (RGB in [0,1], A=1)
+
+// ================================================================================
+// PARAMETERS
+// ================================================================================
+uint2 _OutSize;                     // Output dimensions (usually matches selected mip size)
+uint  _Mip = 0;                     // Mip level to read from source texture
+float _Strength = 2.0;              // Normal map strength multiplier
+uint  _FlipY = 0;                   // 1 = flip green channel (Y component)
+uint  _TreatAsSRGB = 1;             // 1 = treat RGB as sRGB and linearize first
+
+// Height extraction mode: R, G, B, A, Luma709, MaxRGB, AvgRGB, or Custom weights
+uint  _HeightMode = HEIGHT_MODE_LUMA709;
+float3 _WeightsRGB = float3(0.2126, 0.7152, 0.0722);  // Rec. 709 luminance weights
+
+// Gradient calculation kernel: Central Difference or Sobel 3x3
+uint  _Kernel = KERNEL_CENTRAL_DIFFERENCE;
+
+// ================================================================================
+// UTILITY FUNCTIONS
+// ================================================================================
+
+/// <summary>
+/// Convert sRGB color values to linear space using the standard sRGB gamma curve.
+/// </summary>
+/// <param name="srgbColor">Color in sRGB space [0,1]</param>
+/// <returns>Color in linear space [0,1]</returns>
+float3 ConvertSRGBToLinear(float3 srgbColor)
+{
+    // sRGB to linear conversion using the official sRGB specification
+    float3 linearLow = srgbColor / GAMMA_CORRECTION_FACTOR;
+    float3 linearHigh = pow(max((srgbColor + SRGB_ALPHA) / (1.0 + SRGB_ALPHA), 0.0), SRGB_GAMMA);
+    return (srgbColor <= SRGB_THRESHOLD) ? linearLow : linearHigh;
+}
+
+/// <summary>
+/// Extract height value from RGBA color based on the selected height mode.
+/// </summary>
+/// <param name="rgba">Input RGBA color</param>
+/// <returns>Height value [0,1]</returns>
+float ExtractHeightFromColor(float4 rgba)
+{
+    // Apply sRGB to linear conversion if enabled
+    float3 rgb = (_TreatAsSRGB == 1) ? ConvertSRGBToLinear(rgba.rgb) : rgba.rgb;
+
+    // Extract height based on selected mode
+    switch (_HeightMode)
+    {
+        case HEIGHT_MODE_R:
+            return rgb.r;
+        case HEIGHT_MODE_G:
+            return rgb.g;
+        case HEIGHT_MODE_B:
+            return rgb.b;
+        case HEIGHT_MODE_A:
+            return rgba.a;
+        case HEIGHT_MODE_LUMA709:
+            return dot(rgb, float3(0.2126, 0.7152, 0.0722));  // Rec. 709 luminance
+        case HEIGHT_MODE_MAX_RGB:
+            return max(rgb.r, max(rgb.g, rgb.b));
+        case HEIGHT_MODE_AVG_RGB:
+            return (rgb.r + rgb.g + rgb.b) / 3.0;
+        case HEIGHT_MODE_CUSTOM:
+        default:
+            return dot(rgb, normalize(_WeightsRGB + 1e-6));  // Custom weights with epsilon for safety
+    }
+}
+
+/// <summary>
+/// Sample height value at specified pixel coordinates with proper boundary clamping.
+/// </summary>
+/// <param name="pixelCoords">Pixel coordinates to sample</param>
+/// <param name="mipLevel">Mip level to sample from</param>
+/// <returns>Height value at the specified location</returns>
+float SampleHeightAtPixel(int2 pixelCoords, uint mipLevel)
+{
+    // Manual boundary clamping to avoid edge artifacts and wrap mode differences
+    int textureWidth = max(1, int(_OutSize.x));
+    int textureHeight = max(1, int(_OutSize.y));
+    
+    int2 clampedCoords = int2(
+        clamp(pixelCoords.x, 0, textureWidth - 1),
+        clamp(pixelCoords.y, 0, textureHeight - 1)
+    );
+
+    float4 sampledColor = _SourceRGBA.Load(int3(clampedCoords, mipLevel));
+    return ExtractHeightFromColor(sampledColor);
+}
+
+// ================================================================================
+// GRADIENT CALCULATION FUNCTIONS
+// ================================================================================
+
+/// <summary>
+/// Calculate gradient using Central Difference method (simple and fast).
+/// </summary>
+/// <param name="centerPixel">Center pixel coordinates</param>
+/// <param name="mipLevel">Mip level to sample from</param>
+/// <returns>Gradient as float2 (ddx, ddy)</returns>
+float2 CalculateCentralDifferenceGradient(int2 centerPixel, uint mipLevel)
+{
+    // Sample neighboring pixels
+    float heightRight = SampleHeightAtPixel(centerPixel + int2(1, 0), mipLevel);
+    float heightLeft = SampleHeightAtPixel(centerPixel + int2(-1, 0), mipLevel);
+    float heightTop = SampleHeightAtPixel(centerPixel + int2(0, 1), mipLevel);
+    float heightBottom = SampleHeightAtPixel(centerPixel + int2(0, -1), mipLevel);
+
+    // Calculate gradients using central difference
+    float gradientX = (heightRight - heightLeft) * CENTRAL_DIFF_FACTOR;
+    float gradientY = (heightTop - heightBottom) * CENTRAL_DIFF_FACTOR;
+
+    return float2(gradientX, gradientY);
+}
+
+/// <summary>
+/// Calculate gradient using Sobel 3x3 operator (better noise resistance and sharpness).
+/// </summary>
+/// <param name="centerPixel">Center pixel coordinates</param>
+/// <param name="mipLevel">Mip level to sample from</param>
+/// <returns>Gradient as float2 (ddx, ddy)</returns>
+float2 CalculateSobelGradient(int2 centerPixel, uint mipLevel)
+{
+    // Sample 3x3 neighborhood
+    float h00 = SampleHeightAtPixel(centerPixel + int2(-1, -1), mipLevel);
+    float h10 = SampleHeightAtPixel(centerPixel + int2( 0, -1), mipLevel);
+    float h20 = SampleHeightAtPixel(centerPixel + int2( 1, -1), mipLevel);
+    float h01 = SampleHeightAtPixel(centerPixel + int2(-1,  0), mipLevel);
+    float h21 = SampleHeightAtPixel(centerPixel + int2( 1,  0), mipLevel);
+    float h02 = SampleHeightAtPixel(centerPixel + int2(-1,  1), mipLevel);
+    float h12 = SampleHeightAtPixel(centerPixel + int2( 0,  1), mipLevel);
+    float h22 = SampleHeightAtPixel(centerPixel + int2( 1,  1), mipLevel);
+
+    // Apply Sobel operators
+    // Gx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]
+    // Gy = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]]
+    float sobelX = (h20 + 2.0 * h21 + h22) - (h00 + 2.0 * h01 + h02);
+    float sobelY = (h02 + 2.0 * h12 + h22) - (h00 + 2.0 * h10 + h20);
+
+    // Normalize by Sobel factor
+    float gradientX = sobelX * SOBEL_NORMALIZATION_FACTOR;
+    float gradientY = sobelY * SOBEL_NORMALIZATION_FACTOR;
+
+    return float2(gradientX, gradientY);
+}
+
+/// <summary>
+/// Calculate normal vector from gradient with resolution-independent scaling.
+/// </summary>
+/// <param name="gradient">Gradient vector (ddx, ddy)</param>
+/// <param name="strength">Normal strength multiplier</param>
+/// <param name="textureDimensions">Texture dimensions for resolution normalization</param>
+/// <param name="flipY">Whether to flip the Y component</param>
+/// <returns>Encoded normal vector [0,1] with alpha=1</returns>
+float4 CalculateNormalFromGradient(float2 gradient, float strength, uint2 textureDimensions, bool flipY)
+{
+    // Resolution normalization: pixel gradient → UV gradient
+    // Multiply by texture dimensions to achieve resolution-independent results
+    float scaleX = (textureDimensions.x > 0) ? (float)textureDimensions.x : 1.0;
+    float scaleY = (textureDimensions.y > 0) ? (float)textureDimensions.y : 1.0;
+
+    // Construct normal vector in tangent space
+    float3 normal = float3(
+        -gradient.x * strength * scaleX,
+        -gradient.y * strength * scaleY,
+        1.0
+    );
+
+    // Normalize the normal vector
+    normal = normalize(normal);
+
+    // Apply Y-flip if requested (common for different coordinate systems)
+    if (flipY)
+        normal.g = -normal.g;
+
+    // Encode normal from [-1,1] to [0,1] range for storage
+    return float4(normal * NORMAL_ENCODE_BIAS + NORMAL_ENCODE_BIAS, 1.0);
+}
+
+// ================================================================================
+// MAIN COMPUTE KERNEL
+// ================================================================================
+
+/// <summary>
+/// Main compute shader kernel for converting RGBA textures to normal maps.
+/// Processes pixels in 8x8 thread groups for optimal GPU utilization.
+/// </summary>
+[numthreads(THREAD_GROUP_SIZE, THREAD_GROUP_SIZE, 1)]
+void RGBAtoNormal(uint3 threadID : SV_DispatchThreadID)
+{
+    // Early exit for pixels outside the output texture bounds
+    if (threadID.x >= _OutSize.x || threadID.y >= _OutSize.y)
+        return;
+
+    int2 pixelCoordinates = int2(threadID.xy);
+
+    // Calculate gradient using the selected kernel method
+    float2 gradient;
+    switch (_Kernel)
+    {
+        case KERNEL_CENTRAL_DIFFERENCE:
+            gradient = CalculateCentralDifferenceGradient(pixelCoordinates, _Mip);
+            break;
+        case KERNEL_SOBEL_3X3:
+        default:
+            gradient = CalculateSobelGradient(pixelCoordinates, _Mip);
+            break;
+    }
+
+    // Convert gradient to final normal map value
+    float4 normalMapValue = CalculateNormalFromGradient(
+        gradient, 
+        _Strength, 
+        _OutSize, 
+        _FlipY == 1
+    );
+
+    // Write the result to the output texture
+    _NormalTex[pixelCoordinates] = normalMapValue;
+}
